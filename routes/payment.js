@@ -22,8 +22,8 @@ router.post("/checkout", async (req, res) => {
       }
     ],
     mode: "payment",
-    success_url: "https://your-frontend.vercel.app/dashboard",
-    cancel_url: "https://your-frontend.vercel.app/upload"
+    success_url: "https://protoflexi-frontend.vercel.app/dashboard",
+    cancel_url: "https://protoflexi-frontend.vercel.app/upload"
   });
 
   res.json({ url: session.url });
