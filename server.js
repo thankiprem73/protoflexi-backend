@@ -10,11 +10,11 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-app.use("/api/upload", uploadRoute);
-app.use("/api/payment", paymentRoute);
-
 app.get("/", (req, res) => {
   res.send("Protoflexi API is running 🚀");
 });
+
+app.use("/api/upload", uploadRoute);
+app.use("/api/payment", paymentRoute);
 
 app.listen(5000, () => console.log("Server running"));
