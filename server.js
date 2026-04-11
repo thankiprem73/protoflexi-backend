@@ -1,20 +1,48 @@
-require("dotenv").config();
 const express = require("express");
+const multer = require("multer");
+const nodemailer = require("nodemailer");
 const cors = require("cors");
 
-const uploadRoute = require("./routes/upload");
-const paymentRoute = require("./routes/payment");
-
 const app = express();
+app.use(cors());
 
-app.use(cors({ origin: "*" }));
-app.use(express.json());
+const upload = multer({ dest: "uploads/" });
 
-app.get("/", (req, res) => {
-  res.send("Protoflexi API is running 🚀");
+// EMAIL CONFIG
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "your@email.com",
+    pass: "your-app-password"
+  }
 });
 
-app.use("/api/upload", uploadRoute);
-app.use("/api/payment", paymentRoute);
+app.post("/upload", upload.fields([
+  { name: "gerber" },
+  { name: "bom" }
+]), async (req, res) => {
+  const { name, email, quantity } = req.body;
 
-app.listen(5000, () => console.log("Server running"));
+  const gerberFile = req.files["gerber"]?.[0];
+  const bomFile = req.files["bom"]?.[0];
+
+  // SEND EMAIL
+  await transporter.sendMail({
+    from: "your@email.com",
+    to: "your@email.com",
+    subject: "New PCB Quote Request",
+    text: `
+Name: ${name}
+Email: ${email}
+Quantity: ${quantity}
+    `,
+    attachments: [
+      gerberFile ? { path: gerberFile.path } : null,
+      bomFile ? { path: bomFile.path } : null
+    ].filter(Boolean)
+  });
+
+  res.json({ message: "Uploaded & emailed" });
+});
+
+app.listen(5000, () => console.log("Server running on port 5000"));
