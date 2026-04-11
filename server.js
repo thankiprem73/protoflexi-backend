@@ -1,47 +1,39 @@
 const express = require("express");
 const multer = require("multer");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
 
-const upload = multer({ dest: "uploads/" });
+// IMPORTANT: create uploads folder safely
+const upload = multer({ dest: "/tmp" }); // Render-safe (NOT local folder)
 
-// Test route
+// HEALTH CHECK (Render needs this)
 app.get("/", (req, res) => {
-  res.send("PCB Backend Running");
+  res.send("✅ PCB Backend Running");
 });
 
-// Email config (safe)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "your@email.com",
-    pass: "your-app-password"
-  }
-});
-
+// SAFE UPLOAD ROUTE (NO EMAIL YET)
 app.post("/upload", upload.fields([
   { name: "gerber" },
   { name: "bom" }
-]), async (req, res) => {
+]), (req, res) => {
   try {
     const { name, email, quantity } = req.body;
 
-    await transporter.sendMail({
-      from: "your@email.com",
-      to: "your@email.com",
-      subject: "New PCB Quote Request",
-      text: `Name: ${name}, Email: ${email}, Quantity: ${quantity}`
-    });
+    console.log("New request:");
+    console.log({ name, email, quantity });
 
-    res.json({ message: "Success" });
+    res.json({ message: "Upload received" });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Something failed" });
+    console.error("ERROR:", err);
+    res.status(500).json({ error: "Server failed" });
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+// CRITICAL: Render dynamic port
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
