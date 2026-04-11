@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(cors());
@@ -12,8 +13,8 @@ const upload = multer({ dest: "uploads/" });
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "your@email.com",
-    pass: "your-app-password"
+    user: "quote@protoflexi.com",
+    pass: "Musksahil0305$"
   }
 });
 
@@ -28,8 +29,8 @@ app.post("/upload", upload.fields([
 
   // SEND EMAIL
   await transporter.sendMail({
-    from: "your@email.com",
-    to: "your@email.com",
+    from: "quote@protoflexi.com",
+    to: "quote@protoflexi.com",
     subject: "New PCB Quote Request",
     text: `
 Name: ${name}
@@ -45,4 +46,6 @@ Quantity: ${quantity}
   res.json({ message: "Uploaded & emailed" });
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
