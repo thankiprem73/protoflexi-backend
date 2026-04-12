@@ -1,22 +1,24 @@
 const express = require("express");
 const cors = require("cors");
+const multer = require("multer");
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("✅ Backend is running");
-});
+// File storage
+const upload = multer({ dest: "uploads/" });
 
-app.post("/quote", (req, res) => {
-  console.log("Incoming quote:", req.body);
+app.post("/upload", upload.fields([
+  { name: "gerber" },
+  { name: "bom" }
+]), (req, res) => {
+  console.log("Files:", req.files);
+  console.log("Body:", req.body);
+
   res.json({ success: true });
 });
 
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(process.env.PORT || 10000, () =>
+  console.log("Server running")
+);
