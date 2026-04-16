@@ -7,6 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("PROTOFLEXI backend is live 🚀");
+});
+
 // 📁 File storage
 const upload = multer({ dest: "uploads/" });
 
