@@ -1,61 +1,80 @@
-const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const nodemailer = require('nodemailer');
-const path = require('path');
+const express = require("express");
+const multer = require("multer");
+const nodemailer = require("nodemailer");
+const cors = require("cors");
+const path = require("path");
+require("dotenv").config();
 
 const app = express();
-
-// Middleware
 app.use(cors());
-app.use(express.json());
 
-// ✅ Multer setup (memory storage)
-const storage = multer.memoryStorage();
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+// FILE STORAGE
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + "-" + file.originalname),
 });
 
-// Test route
-//app.get("/", (req, res) => {
-//  res.send("ProtoFlexi backend running 🚀");
-//});
+const upload = multer({ storage });
 
-// ✅ UPDATED Quote API (handles files)
-app.post('/api/quote', upload.array('files'), async (req, res) => {
+// EMAIL CONFIG (Gmail example)
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // use App Password (NOT normal password)
+  },
+});
+
+// ROUTE
+app.post("/api/quote", upload.array("files"), async (req, res) => {
   try {
-    const data = req.body;
+    const {
+      fname,
+      lname,
+      email,
+      company,
+      country,
+      state,
+      layers,
+      qty,
+      service,
+      lead,
+      desc,
+    } = req.body;
+
     const files = req.files;
-    console.log("BODY:", req.body);
-    console.log("FILES:", req.files);
-    console.log("New Quote Request:", data);
 
-    if (files && files.length > 0) {
-      console.log("Uploaded files:");
-      files.forEach(file => {
-        console.log(`- ${file.originalname} (${file.size} bytes)`);
-      });
-    } else {
-      console.log("No files uploaded");
-    }
+    const attachments = files.map((file) => ({
+      filename: file.originalname,
+      path: file.path,
+    }));
 
-    // TODO:
-    // 1. Upload files to S3 / storage
-    // 2. OR email them using nodemailer
+    await transporter.sendMail({
+      from: `"PROTOFLEXI" <${process.env.EMAIL_USER}>`,
+      to: "yourbusiness@email.com",
+      subject: `New PCB Quote Request - ${fname} ${lname}`,
+      html: `
+        <h3>New Quote Request</h3>
+        <p><b>Name:</b> ${fname} ${lname}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Company:</b> ${company}</p>
+        <p><b>Country:</b> ${country}</p>
+        <p><b>State:</b> ${state}</p>
+        <p><b>Layers:</b> ${layers}</p>
+        <p><b>Quantity:</b> ${qty}</p>
+        <p><b>Service:</b> ${service}</p>
+        <p><b>Lead:</b> ${lead}</p>
+        <p><b>Description:</b> ${desc}</p>
+      `,
+      attachments,
+    });
 
-    res.json({ success: true });
-
+    res.json({ success: true, message: "Email sent" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// Port (Render requires this)
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(5000, () => console.log("Server running on port 5000"));
