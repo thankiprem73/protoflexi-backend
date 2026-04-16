@@ -1,3 +1,7 @@
+app.get("/", (req, res) => {
+  res.send("PROTOFLEXI backend is live 🚀");
+});
+
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
@@ -6,10 +10,6 @@ const nodemailer = require("nodemailer");
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("PROTOFLEXI backend is live 🚀");
-});
 
 // 📁 File storage
 const upload = multer({ dest: "uploads/" });
