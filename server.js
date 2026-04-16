@@ -1,3 +1,7 @@
+app.get("/", (req, res) => {
+  res.send("🚀 PROTOFLEXI backend is running");
+});
+
 const express = require("express");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
