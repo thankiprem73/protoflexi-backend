@@ -1,7 +1,3 @@
-app.get("/", (req, res) => {
-  res.send("🚀 PROTOFLEXI backend is running");
-});
-
 const express = require("express");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
@@ -11,6 +7,8 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors());
+
+
 
 // FILE STORAGE
 const storage = multer.diskStorage({
@@ -28,6 +26,10 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS, // use App Password (NOT normal password)
   },
+});
+
+app.get("/", (req, res) => {
+  res.send("🚀 PROTOFLEXI backend is running");
 });
 
 // ROUTE
