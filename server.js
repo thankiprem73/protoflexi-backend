@@ -52,7 +52,7 @@ app.post("/api/quote", upload.array("files"), async (req, res) => {
 
     await transporter.sendMail({
       from: `"PROTOFLEXI" <${process.env.EMAIL_USER}>`,
-      to: "yourbusiness@email.com",
+      to: "quote@protoflexi.com",
       subject: `New PCB Quote Request - ${fname} ${lname}`,
       html: `
         <h3>New Quote Request</h3>
