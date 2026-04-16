@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
+const nodemailer = require('nodemailer');
+const path = require('path');
 
 const app = express();
 
@@ -9,22 +11,25 @@ app.use(cors());
 app.use(express.json());
 
 // ✅ Multer setup (memory storage)
+const storage = multer.memoryStorage();
+
 const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB per file
+  storage: storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
 });
 
 // Test route
-app.get("/", (req, res) => {
-  res.send("ProtoFlexi backend running 🚀");
-});
+//app.get("/", (req, res) => {
+//  res.send("ProtoFlexi backend running 🚀");
+//});
 
 // ✅ UPDATED Quote API (handles files)
 app.post('/api/quote', upload.array('files'), async (req, res) => {
   try {
     const data = req.body;
     const files = req.files;
-
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
     console.log("New Quote Request:", data);
 
     if (files && files.length > 0) {
